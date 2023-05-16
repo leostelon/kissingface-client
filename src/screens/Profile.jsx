@@ -1,7 +1,7 @@
 import "./Profile.css";
 import "../styles/dscard.css";
 import React, { useEffect, useState } from "react";
-import { Box, TextField } from "@mui/material";
+import { Box, TextField, Tooltip } from "@mui/material";
 import { Navbar } from "../components/Navbar";
 import { useParams } from "react-router-dom";
 import { uploadDataset, userDatasets } from "../api/dataset";
@@ -12,6 +12,9 @@ import { IoSettingsOutline } from "react-icons/io5";
 import { Loader } from "../components/Loader";
 import EmptyBox from "../assets/629-empty-box.gif";
 import { downloadURI } from "../utils/download";
+import { BsDownload } from "react-icons/bs";
+import { toast } from "react-toastify";
+import { CreateAccessTokenDialog } from "../components/CreateAccessTokenDialog";
 
 export const Profile = () => {
 	const [loading, setLoading] = useState(true);
@@ -21,6 +24,8 @@ export const Profile = () => {
 	const [file, setFile] = useState();
 	const [name, setName] = useState("filename");
 	const [version, setVersion] = useState("versionname");
+	const [tokenDialogOpen, setTokenDialogOpen] = useState(false);
+	const [selectedDatasetid, setSelectedDatasetid] = useState();
 
 	const { user } = useParams();
 
@@ -47,6 +52,20 @@ export const Profile = () => {
 
 		const response = await uploadDataset(file, `${name}:${version}`);
 		console.log(response);
+	}
+
+	async function download(file, version) {
+		// Check if logged in.
+		let token = localStorage.getItem("token");
+		if (!token || token !== "" || token !== "undefined") {
+			return toast("Please connect wallet to download", { type: "info" });
+		}
+		// Check access
+		downloadURI(file, version);
+	}
+
+	function handleTokenDialogClose() {
+		setTokenDialogOpen(false);
 	}
 
 	useEffect(() => {
@@ -97,6 +116,13 @@ export const Profile = () => {
 							</Box>
 						)}
 					</Box>
+
+					<CreateAccessTokenDialog
+						isOpen={tokenDialogOpen}
+						handleExternalClose={handleTokenDialogClose}
+						datasetId={selectedDatasetid}
+					/>
+
 					{menuIndex === 0 && (
 						<Box sx={{ flex: 1, width: "100%" }}>
 							{loading ? (
@@ -193,6 +219,29 @@ export const Profile = () => {
 								</Box>
 							) : (
 								<Box px={4}>
+									<Box
+										sx={{
+											display: "flex",
+											alignItems: "center",
+											justifyContent: "space-between",
+											mb: 2,
+										}}
+									>
+										<h1>Datasets</h1>
+										<Box
+											style={{
+												backgroundColor: "#256afe",
+												padding: "6px 16px",
+												fontWeight: 500,
+												borderRadius: "4px",
+												cursor: "pointer",
+											}}
+											onClick={() => setMenuIndex(3)}
+										>
+											Upload File
+										</Box>
+									</Box>
+
 									{datasets.map((d, i) => {
 										const ds = d.data;
 										return (
@@ -239,11 +288,10 @@ export const Profile = () => {
 														</Box>
 													</Box>
 													<Box
-														onClick={() => {
-															downloadURI(ds.file, ds.version);
-														}}
+														className="dscard-download"
+														onClick={() => download(ds.file, ds.version)}
 													>
-														Download
+														<BsDownload color="white" />
 													</Box>
 												</Box>
 												<Box
@@ -259,7 +307,22 @@ export const Profile = () => {
 													<p>
 														Uploaded at {new Date(ds.timestamp).toDateString()}
 													</p>
-													<p>Create Access</p>
+													{!ds.tokenAccessEnabled && (
+														<Tooltip
+															title="Enable access to users."
+															placement="top"
+														>
+															<p
+																className="access-enabled"
+																onClick={() => {
+																	setSelectedDatasetid(ds.id);
+																	setTokenDialogOpen(true);
+																}}
+															>
+																Create access token⚠️
+															</p>
+														</Tooltip>
+													)}
 												</Box>
 											</Box>
 										);
@@ -310,6 +373,98 @@ export const Profile = () => {
 
 							<br />
 							<h3>Token</h3>
+						</Box>
+					)}
+					{menuIndex === 3 && (
+						<Box
+							sx={{
+								display: "flex",
+								alignItems: "center",
+								justifyContent: "center",
+								padding: 2,
+								width: "100%",
+							}}
+						>
+							<Box
+								sx={{
+									textAlign: "center",
+									border: "2px solid grey",
+									borderStyle: "dotted",
+									p: 4,
+									backgroundColor: "#1b1c1d",
+								}}
+							>
+								<h3
+									style={{
+										color: "grey",
+									}}
+								>
+									Upload your dataset.😃
+								</h3>
+								<AiOutlineCloudUpload size={80} />
+								<Box
+									style={{
+										marginBottom: "16px",
+									}}
+								>
+									<input
+										type="file"
+										name="file"
+										id="file"
+										onChange={(e) => setFile(e.target.files[0])}
+									/>
+								</Box>
+								<Box sx={{ mt: 1 }}>
+									<TextField
+										placeholder="Enter dataset name"
+										size="small"
+										value={name}
+										onChange={(e) => {
+											setName(e.target.value);
+										}}
+										sx={{
+											width: "100%",
+										}}
+										InputProps={{
+											style: {
+												color: "white",
+												border: "1px solid white",
+											},
+										}}
+									/>
+									<TextField
+										placeholder="Enter version"
+										size="small"
+										value={version}
+										onChange={(e) => {
+											setVersion(e.target.value);
+										}}
+										sx={{
+											width: "100%",
+											mt: 2,
+											mb: 2,
+										}}
+										InputProps={{
+											style: {
+												color: "white",
+												border: "1px solid white",
+											},
+										}}
+									/>
+								</Box>
+								<Box
+									style={{
+										backgroundColor: "#256afe",
+										padding: "6px 16px",
+										fontWeight: 500,
+										borderRadius: "4px",
+										cursor: "pointer",
+									}}
+									onClick={uploadFile}
+								>
+									Upload File
+								</Box>
+							</Box>
 						</Box>
 					)}
 				</Box>
