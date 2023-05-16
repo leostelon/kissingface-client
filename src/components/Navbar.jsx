@@ -1,16 +1,15 @@
+import "../styles/navbar.css";
 import React, { useEffect, useState } from "react";
 import { Box, Menu, MenuItem } from "@mui/material";
 import { BsPerson } from "react-icons/bs";
-import BgImg from "../assets/background-home.png";
 import { connectWalletToSite, getWalletAddress } from "../utils/wallet";
-import { createUser, getUser } from "../api/user";
+import { createUser } from "../api/user";
 import { HiOutlineLogout } from "react-icons/hi";
 import { MdOutlinePersonOutline } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 
 export const Navbar = () => {
 	const [anchorEl, setAnchorEl] = useState(null);
-	const [user, setUser] = useState({});
 	const open = Boolean(anchorEl);
 	const navigate = useNavigate();
 	const [connectedToSite, setConnectedToSite] = useState(false);
@@ -35,14 +34,8 @@ export const Navbar = () => {
 			if (token && token !== "" && token !== "undefined") {
 				console.log(typeof token, token);
 				setConnectedToSite(true);
-				checkAndUpdateNameDialog(address);
 			}
 		}
-	}
-
-	async function checkAndUpdateNameDialog(address) {
-		const user = await getUser(address);
-		setUser(user);
 	}
 
 	useEffect(() => {
@@ -60,19 +53,6 @@ export const Navbar = () => {
 				flexDirection: "column",
 			}}
 		>
-			<Box
-				position={"absolute"}
-				right={0}
-				sx={{
-					backgroundImage: `url('${BgImg}')`,
-					backgroundPosition: "right",
-					backgroundRepeat: "no-repeat",
-					width: "100vw",
-					height: "100vh",
-					filter: "brightness(2)",
-					zIndex: -1,
-				}}
-			></Box>
 			<div className="navbar">
 				<div
 					onClick={() => {
@@ -81,8 +61,7 @@ export const Navbar = () => {
 					style={{ cursor: "pointer" }}
 				>
 					<h1 style={{ alignItems: "flex-start", display: "flex" }}>
-						⭕Daggle{" "}
-						{user.premium ? <span className="premium-tag">premium</span> : ""}
+						🔵Daggle{" "}
 					</h1>
 				</div>
 				<div

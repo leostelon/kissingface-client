@@ -4,7 +4,7 @@
 	padding: 40px 0px;
 	position: relative;
 	width: 100%;
-	max-width: 840px;
+	max-width: 1240px;
 }
 
 .navbar .upload-button {
@@ -23,7 +23,7 @@
 	width: 40px;
 	height: 40px;
 	font-size: 18px;
-	border: 0.5px solid black;
+	border: 0.5px solid white;
 	cursor: pointer;
 	display: flex;
 	align-items: center;
@@ -61,7 +61,7 @@
 		#ff59e7
 	);
 	border-radius: 4px;
-	color:white;
+	color: white;
 	animation: hue 5s ease-in-out infinite;
 	-moz-animation: hue 5s ease-in-out infinite;
 	-webkit-animation: hue 5s ease-in-out infinite;

@@ -1,0 +1,35 @@
+.dscard {
+	display: flex;
+	padding: 16px;
+	border-radius: 6px;
+	box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+	margin-bottom: 16px;
+	flex-direction: column;
+	background-color: #26313B;
+}
+
+.dscard:hover {
+	box-shadow: rgba(149, 157, 165, 0.4) 0px 8px 24px;
+}
+
+.dscard .tag {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: min-content;
+	padding: 4px;
+	background-color: #256afe;
+	color: white;
+	font-weight: 500;
+	font-size: 14px;
+	border-radius: 4px;
+	margin-top: 4px;
+}
+
+.dscard .creator {
+	display: flex;
+	align-items: center;
+	margin-top: 12px;
+	font-weight: 600;
+	font-size: "14px";
+}
