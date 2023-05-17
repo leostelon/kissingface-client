@@ -11,9 +11,8 @@ import { TbBoxModel2 } from "react-icons/tb";
 import { IoSettingsOutline } from "react-icons/io5";
 import { Loader } from "../components/Loader";
 import EmptyBox from "../assets/629-empty-box.gif";
-import { downloadURI } from "../utils/download";
+import { download } from "../utils/download";
 import { BsDownload } from "react-icons/bs";
-import { toast } from "react-toastify";
 import { CreateAccessTokenDialog } from "../components/CreateAccessTokenDialog";
 
 export const Profile = () => {
@@ -52,16 +51,6 @@ export const Profile = () => {
 
 		const response = await uploadDataset(file, `${name}:${version}`);
 		console.log(response);
-	}
-
-	async function download(file, version) {
-		// Check if logged in.
-		let token = localStorage.getItem("token");
-		if (!token || token !== "" || token !== "undefined") {
-			return toast("Please connect wallet to download", { type: "info" });
-		}
-		// Check access
-		downloadURI(file, version);
 	}
 
 	function handleTokenDialogClose() {

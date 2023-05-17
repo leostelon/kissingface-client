@@ -35,7 +35,7 @@ export const getDatasets = async function () {
 
 export const searchDatasets = async function (name) {
 	try {
-		const response = await axios.get(SERVER_URL + "/repository?name=" + name);
+		const response = await axios.get(SERVER_URL + "/datasets/search?name=" + name);
 		if (response.status === 200) {
 			return response.data.repositories;
 		}

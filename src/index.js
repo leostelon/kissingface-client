@@ -12,7 +12,6 @@ root.render(
 		<ToastContainer
 			position="bottom-center"
 			pauseOnHover
-			hideProgressBar
 			autoClose={3000}
 		/>
 	</React.StrictMode>
