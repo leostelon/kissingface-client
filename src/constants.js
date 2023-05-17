@@ -15,4 +15,17 @@ export const ChainsConfig = {
 		rpcUrls: ["https://api.node.glif.io"],
 		blockExplorerUrls: ["https://fvm.starboard.ventures/explorer/tx/"],
 	},
+	POLYGON_TESTNET: {
+		chainId: 80001,
+		rpcUrls: ["https://matic-mumbai.chainstacklabs.com"],
+		chainName: "Polygon Testnet",
+		nativeCurrency: {
+			name: "tMATIC",
+			symbol: "tMATIC",
+			decimals: 18,
+		},
+		blockExplorerUrls: ["https://mumbai.polygonscan.com/"],
+	},
 };
+
+export const CONTRACT_ADDRESS = "0xb1Cf086A2A4061e5f448Ce84d726b68A391dB17a";

@@ -29,19 +29,23 @@ contract Factory {
     function deployToken(
         string calldata _name,
         string calldata _ticker,
-        uint256 _supply
-    ) public returns (address) {
+        uint256 _supply,
+        uint256 _price
+    ) public returns (uint256) {
         Token token = new Token(_name, _ticker, _supply);
         token.transfer(msg.sender, _supply);
-        token.approve(address(this), _supply);
         tokens.push(address(token));
+
         tokenCount += 1;
         owner[address(token)] = msg.sender;
+        price[address(token)] = _price;
+
+        emit PriceUpdated(address(token), _price, msg.sender);
         emit TokenDeployed(address(token));
-        return address(token);
+        return ERC20(address(token)).allowance(msg.sender, address(this));
     }
 
-    function setPricec(
+    function setPrice(
         address _tokenAddress,
         uint256 _price
     ) public returns (uint256) {
@@ -64,7 +68,11 @@ contract Factory {
         // Tokens to send
         uint256 totalToken = msg.value / price[_tokenAddress];
 
-        ERC20(_tokenAddress).transfer(msg.sender, totalToken);
+        ERC20(_tokenAddress).transferFrom(
+            owner[_tokenAddress],
+            msg.sender,
+            totalToken
+        );
         return totalToken;
     }
 }

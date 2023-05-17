@@ -25,6 +25,7 @@ export const Profile = () => {
 	const [version, setVersion] = useState("versionname");
 	const [tokenDialogOpen, setTokenDialogOpen] = useState(false);
 	const [selectedDatasetid, setSelectedDatasetid] = useState();
+	const [selectedDatasetName, setSelectedDatasetName] = useState();
 
 	const { user } = useParams();
 
@@ -110,6 +111,7 @@ export const Profile = () => {
 						isOpen={tokenDialogOpen}
 						handleExternalClose={handleTokenDialogClose}
 						datasetId={selectedDatasetid}
+						datasetName={selectedDatasetName}
 					/>
 
 					{menuIndex === 0 && (
@@ -305,6 +307,7 @@ export const Profile = () => {
 																className="access-enabled"
 																onClick={() => {
 																	setSelectedDatasetid(ds.id);
+																	setSelectedDatasetName(ds.name);
 																	setTokenDialogOpen(true);
 																}}
 															>

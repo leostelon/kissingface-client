@@ -32,7 +32,6 @@ export const Navbar = () => {
 			}
 			token = localStorage.getItem("token");
 			if (token && token !== "" && token !== "undefined") {
-				console.log(typeof token, token);
 				setConnectedToSite(true);
 			}
 		}

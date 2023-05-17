@@ -3,7 +3,10 @@ import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { getWalletAddress, switchChain } from "../utils/wallet";
 import FactoryInterface from "../contracts/Factory.json";
+import ERC20Interface from "../contracts/ERC20.json";
 import { createToken } from "../api/token";
+import Web3 from "web3";
+import { CONTRACT_ADDRESS } from "../constants";
 
 const InputProps = {
 	style: {
@@ -19,15 +22,16 @@ const HelperProps = {
 
 export const CreateAccessTokenDialog = ({
 	datasetId,
+	datasetName,
 	isOpen,
 	handleExternalClose,
 }) => {
 	const [loading, setLoading] = useState(false);
 	const [open, setOpen] = useState(false);
 	const [name, setName] = useState("mytoki");
-	const [maxSupply, setMaxSupply] = useState(5000);
-	const [pricePerToken, setPricePerToken] = useState(0.001);
-	const [minimumPurchase, setMinimumPurchase] = useState(10);
+	const [maxSupply, setMaxSupply] = useState(5);
+	const [pricePerToken, setPricePerToken] = useState(0.1);
+	const [minimumPurchase, setMinimumPurchase] = useState(1);
 
 	const handleClose = (event, reason) => {
 		setOpen(false);
@@ -48,25 +52,28 @@ export const CreateAccessTokenDialog = ({
 			await switchChain();
 			const contract = new window.web3.eth.Contract(
 				FactoryInterface.abi,
-				"0xb1Cf086A2A4061e5f448Ce84d726b68A391dB17a"
+				CONTRACT_ADDRESS
 			);
 			const currentAddress = await getWalletAddress();
 
 			// Gas Calculation
 			const gasPrice = await window.web3.eth.getGasPrice();
+			const pricePerTokenWei = Web3.utils.toWei(pricePerToken.toString());
+			const maxSupplyEther = Web3.utils.toWei(maxSupply.toString());
 			const gas = await contract.methods
-				.deployToken(name, name, maxSupply)
+				.deployToken(name, name, maxSupplyEther, pricePerTokenWei)
 				.estimateGas({
 					from: currentAddress,
 				});
 			const resp = await contract.methods
-				.deployToken(name, name, maxSupply)
+				.deployToken(name, name, maxSupplyEther, pricePerTokenWei)
 				.send({ from: currentAddress, gasPrice, gas });
 
 			// Server Interaction
 			const tokenAddress = resp.events.TokenDeployed.returnValues.tokenAddress;
 			const body = {
 				datasetId,
+				datasetName,
 				name,
 				tokenAddress,
 				minimumPurchase,
@@ -74,8 +81,9 @@ export const CreateAccessTokenDialog = ({
 				maxSupply,
 			};
 			const response = await createToken(body);
-			setLoading(false);
 			if (response.status === 200) {
+				await approveTokens(tokenAddress);
+				setLoading(false);
 				toast("Token creation success🥳🍾", { type: "success" });
 				await new Promise((res, rej) => {
 					setTimeout(() => {
@@ -86,10 +94,31 @@ export const CreateAccessTokenDialog = ({
 			} else {
 				toast(response.data.message, { type: "error" });
 			}
+			setLoading(false);
 		} catch (error) {
 			toast(error.message);
 			setLoading(false);
 		}
+	}
+
+	async function approveTokens(tokenAddress) {
+		const contract = new window.web3.eth.Contract(
+			ERC20Interface.abi,
+			tokenAddress
+		);
+		const maxSupplyEther = Web3.utils.toWei(maxSupply.toString());
+		// Gas Calculation
+		const gasPrice = await window.web3.eth.getGasPrice();
+		const currentAddress = await getWalletAddress();
+
+		const gas = await contract.methods
+			.approve(CONTRACT_ADDRESS, maxSupplyEther)
+			.estimateGas({
+				from: currentAddress,
+			});
+		await contract.methods
+			.approve(CONTRACT_ADDRESS, maxSupplyEther)
+			.send({ from: currentAddress, gasPrice, gas });
 	}
 
 	useEffect(() => {

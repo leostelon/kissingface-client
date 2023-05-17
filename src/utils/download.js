@@ -1,24 +1,25 @@
 import { toast } from "react-toastify";
+import { downloadDataset } from "../api/dataset";
 
-export function download(file, version) {
+export async function download(id) {
 	try {
-		// Check access
-		if (!file || !version) {
-			// Open token buy popup
-			return toast("Please buy token's to access the datasets", {
+		// Server Interaction
+		const resolved = await downloadDataset(id);
+		if (resolved.statusCode === 401) {
+			toast("Please buy token's to access the datasets.", {
 				type: "info",
 			});
+		} else if (resolved.statusCode === 404) {
+			toast("Invalid dataset id.", {
+				type: "info",
+			});
+		} else if (resolved.statusCode === 200) {
+			// Download File
+			downloadURI(resolved.data.data.file, resolved.data.data.name);
 		}
-		// Check if logged in.
-		let token = localStorage.getItem("token");
-		console.log(token);
-		if (!token || token === "" || token === "undefined") {
-			return toast("Please connect wallet to download", { type: "info" });
-		}
-		// Check access
-		downloadURI(file, version);
+
+		return resolved;
 	} catch (error) {
-		console.log(error);
 		toast(error.message);
 	}
 }

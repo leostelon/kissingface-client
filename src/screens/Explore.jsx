@@ -1,6 +1,6 @@
 import "./Explore.css";
 import "../styles/dscard.css";
-import { Box } from "@mui/material";
+import { Box, CircularProgress, Dialog } from "@mui/material";
 import { Navbar } from "../components/Navbar";
 import React, { useEffect, useState } from "react";
 import { getDatasets, searchDatasets } from "../api/dataset";
@@ -11,6 +11,7 @@ import { BsDownload } from "react-icons/bs";
 import { IoMdOpen } from "react-icons/io";
 import { download } from "../utils/download";
 import { getShortAddress } from "../utils/addressShort";
+import { BuyAccessTokenDialog } from "../components/BuyAccessTokenDialog";
 
 export const Explore = () => {
 	const [images, setImages] = useState([]);
@@ -18,6 +19,9 @@ export const Explore = () => {
 	const search = useLocation().search;
 	const query = new URLSearchParams(search).get("query");
 	const navigate = useNavigate();
+	const [accessDialogOpen, setAccessDialogOpen] = useState(false);
+	const [selectedDataset, setSelectedDataset] = useState();
+	const [downloadLoading, setDownloadLoading] = useState(false);
 
 	async function getImages() {
 		setLoading(true);
@@ -31,6 +35,10 @@ export const Explore = () => {
 		const repos = await searchDatasets(query);
 		setImages(repos);
 		setLoading(false);
+	}
+
+	function handleTokenDialogClose() {
+		setAccessDialogOpen(false);
 	}
 
 	useEffect(() => {
@@ -63,6 +71,33 @@ export const Explore = () => {
 					<SearchComponent />
 				</Box>
 
+				<BuyAccessTokenDialog
+					isOpen={accessDialogOpen}
+					handleExternalClose={handleTokenDialogClose}
+					dataset={selectedDataset}
+				/>
+				<Dialog
+					fullWidth
+					maxWidth="xs"
+					open={downloadLoading}
+					PaperProps={{
+						style: {
+							backgroundColor: "transparent",
+							boxShadow: "none",
+						},
+					}}
+				>
+					<Box
+						sx={{
+							display: "flex",
+							alignItems: "center",
+							justifyContent: "center",
+							height: "100px",
+						}}
+					>
+						<CircularProgress sx={{ color: "white" }} />
+					</Box>
+				</Dialog>
 				<Box mt={2}>
 					{loading ? (
 						<Loader />
@@ -128,9 +163,19 @@ export const Explore = () => {
 												/>
 											</Box>
 										</Box>
+
 										<Box
 											className="dscard-download"
-											onClick={() => download(ds.file, ds.version)}
+											onClick={async () => {
+												setDownloadLoading(true);
+												setSelectedDataset(ds);
+												const resolved = await download(ds.id);
+												setDownloadLoading(false);
+
+												if (resolved.data.status === 401) {
+													setAccessDialogOpen(true);
+												}
+											}}
 										>
 											<BsDownload color="white" />
 										</Box>

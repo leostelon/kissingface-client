@@ -1,5 +1,6 @@
 import { default as axios } from "axios";
 import { SERVER_URL } from "../constants";
+import { resolve } from "../utils/resolver";
 
 export const uploadDataset = async function (file, dataset) {
 	try {
@@ -35,7 +36,9 @@ export const getDatasets = async function () {
 
 export const searchDatasets = async function (name) {
 	try {
-		const response = await axios.get(SERVER_URL + "/datasets/search?name=" + name);
+		const response = await axios.get(
+			SERVER_URL + "/datasets/search?name=" + name
+		);
 		if (response.status === 200) {
 			return response.data.repositories;
 		}
@@ -78,6 +81,24 @@ export const getDatasetVersion = async function (name) {
 		if (response.status === 200) {
 			return response.data.repositories;
 		}
+	} catch (error) {
+		console.log(error.message);
+	}
+};
+
+export const downloadDataset = async function (id) {
+	try {
+		let token = localStorage.getItem("token");
+
+		const resolved = await resolve(
+			axios.get(SERVER_URL + "/datasets/download?id=" + id, {
+				headers: {
+					"Content-Type": `application/json`,
+					Authorization: "Bearer " + token,
+				},
+			})
+		);
+		return resolved;
 	} catch (error) {
 		console.log(error.message);
 	}
