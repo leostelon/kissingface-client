@@ -95,30 +95,11 @@ export const TagsDialog = ({ name, isOpen, handleExternalClose }) => {
 											</Box>
 										)}
 									</Box>
-									<p
-										style={{
-											fontWeight: "500",
-											fontSize: "12px",
-											marginTop: "4px",
-											textDecoration: "underline",
-											color: "white",
-											cursor: "pointer",
-										}}
-										onClick={() => {
-											// setName(ds.name);
-										}}
-									>
-										view versions
-									</p>
 								</Box>
 								{/* Description */}
 								<Box mt={2} sx={{ color: "grey" }}>
 									<p>
-										Lorem, ipsum dolor sit amet consectetur adipisicing elit.
-										Accusantium optio totam eum, veniam distinctio dolor
-										consequatur cupiditate, perferendis veritatis iusto hic
-										quibusdam alias voluptas ipsam? Veniam deleniti enim magni
-										natus.
+										{ds.description !== "" ? ds.description : "No description"}
 									</p>
 								</Box>
 								{/* Maintained By */}

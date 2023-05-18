@@ -2,12 +2,13 @@ import { default as axios } from "axios";
 import { SERVER_URL } from "../constants";
 import { resolve } from "../utils/resolver";
 
-export const uploadDataset = async function (file, dataset) {
+export const uploadDataset = async function (file, dataset, description) {
 	try {
 		let token = localStorage.getItem("token");
 		const form = new FormData();
 		form.append("file", file, file.name);
 		form.append("dataset", dataset);
+		form.append("description", description);
 
 		const response = await axios.post(SERVER_URL + "/upload/dataset", form, {
 			headers: {

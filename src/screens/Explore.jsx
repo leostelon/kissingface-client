@@ -140,7 +140,7 @@ export const Explore = () => {
 											}}
 											onClick={() => {
 												setName(ds.name);
-															setTagsDialogOpen(true);
+												setTagsDialogOpen(true);
 											}}
 										>
 											view versions
@@ -149,11 +149,9 @@ export const Explore = () => {
 									{/* Description */}
 									<Box mt={2} sx={{ color: "grey" }}>
 										<p>
-											Lorem, ipsum dolor sit amet consectetur adipisicing elit.
-											Accusantium optio totam eum, veniam distinctio dolor
-											consequatur cupiditate, perferendis veritatis iusto hic
-											quibusdam alias voluptas ipsam? Veniam deleniti enim magni
-											natus.
+											{ds.description !== ""
+												? ds.description
+												: "No description"}
 										</p>
 									</Box>
 									{/* Maintained By */}

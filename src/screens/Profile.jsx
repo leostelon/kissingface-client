@@ -25,6 +25,7 @@ export const Profile = () => {
 	const [file, setFile] = useState();
 	const [name, setName] = useState("");
 	const [version, setVersion] = useState("");
+	const [description, setDescription] = useState("");
 	const [tokenDialogOpen, setTokenDialogOpen] = useState(false);
 	const [selectedDatasetid, setSelectedDatasetid] = useState();
 	const [selectedDatasetName, setSelectedDatasetName] = useState();
@@ -46,8 +47,10 @@ export const Profile = () => {
 			return alert("Please enter a name for this dataset.");
 		if (!version || version === "")
 			return alert("Please enter a version for this dataset.");
+		if (!description || description === "")
+			return alert("Please enter a description for this dataset.");
 		setUploadLoading(true);
-		await uploadDataset(file, `${name}:${version}`);
+		await uploadDataset(file, `${name}:${version}`, description);
 		toast("Successfully uploaded your dataset", { type: "success" });
 		setMenuIndex(0);
 		setUploadLoading(false);
@@ -202,6 +205,28 @@ export const Profile = () => {
 													},
 												}}
 											/>
+											<TextField
+												multiline
+												rows={4}
+												maxRows={4}
+												placeholder="Enter description"
+												size="small"
+												value={description}
+												onChange={(e) => {
+													setDescription(e.target.value);
+												}}
+												sx={{
+													width: "100%",
+													mt: 2,
+													mb: 2,
+												}}
+												InputProps={{
+													style: {
+														color: "white",
+														border: "1px solid white",
+													},
+												}}
+											/>
 										</Box>
 										<Box
 											style={{
@@ -297,11 +322,9 @@ export const Profile = () => {
 												{/* Description */}
 												<Box mt={2} sx={{ color: "grey" }}>
 													<p>
-														Lorem, ipsum dolor sit amet consectetur adipisicing
-														elit. Accusantium optio totam eum, veniam distinctio
-														dolor consequatur cupiditate, perferendis veritatis
-														iusto hic quibusdam alias voluptas ipsam? Veniam
-														deleniti enim magni natus.
+														{ds.description !== ""
+															? ds.description
+															: "No description"}
 													</p>
 												</Box>
 												<Box
@@ -431,6 +454,27 @@ export const Profile = () => {
 										value={version}
 										onChange={(e) => {
 											setVersion(e.target.value);
+										}}
+										sx={{
+											width: "100%",
+											mt: 2,
+										}}
+										InputProps={{
+											style: {
+												color: "white",
+												border: "1px solid white",
+											},
+										}}
+									/>
+									<TextField
+										multiline
+										rows={4}
+										maxRows={4}
+										placeholder="Enter description"
+										size="small"
+										value={description}
+										onChange={(e) => {
+											setDescription(e.target.value);
 										}}
 										sx={{
 											width: "100%",
