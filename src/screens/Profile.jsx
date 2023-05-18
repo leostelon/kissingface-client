@@ -1,46 +1,43 @@
 import "./Profile.css";
 import "../styles/dscard.css";
 import React, { useEffect, useState } from "react";
-import { Box, TextField, Tooltip } from "@mui/material";
+import { Box, CircularProgress, TextField, Tooltip } from "@mui/material";
 import { Navbar } from "../components/Navbar";
 import { useParams } from "react-router-dom";
 import { uploadDataset, userDatasets } from "../api/dataset";
 import { BsDatabase } from "react-icons/bs";
 import { AiOutlineCloudUpload } from "react-icons/ai";
 import { TbBoxModel2 } from "react-icons/tb";
-import { IoSettingsOutline } from "react-icons/io5";
 import { Loader } from "../components/Loader";
 import EmptyBox from "../assets/629-empty-box.gif";
-import { download } from "../utils/download";
-import { BsDownload } from "react-icons/bs";
 import { CreateAccessTokenDialog } from "../components/CreateAccessTokenDialog";
+import { toast } from "react-toastify";
+import { getShortAddress } from "../utils/addressShort";
+import { RxHalf2 } from "react-icons/rx";
+import { TagsDialog } from "../components/TagsDialog";
+import { DownloadButton } from "../components/DownloadButton";
 
 export const Profile = () => {
 	const [loading, setLoading] = useState(true);
-	const [token, setToken] = useState("");
+	const [uploadLoading, setUploadLoading] = useState(false);
 	const [menuIndex, setMenuIndex] = useState(0);
 	const [datasets, setDatasets] = useState([]);
 	const [file, setFile] = useState();
-	const [name, setName] = useState("filename");
-	const [version, setVersion] = useState("versionname");
+	const [name, setName] = useState("");
+	const [version, setVersion] = useState("");
 	const [tokenDialogOpen, setTokenDialogOpen] = useState(false);
 	const [selectedDatasetid, setSelectedDatasetid] = useState();
 	const [selectedDatasetName, setSelectedDatasetName] = useState();
+	const [tagsDialogOpen, setTagsDialogOpen] = useState(false);
 
 	const { user } = useParams();
 
 	async function getDatasets(user) {
 		setLoading(true);
+		setDatasets([]);
 		const repos = await userDatasets(user);
 		setDatasets(repos);
 		setLoading(false);
-	}
-
-	async function checkIfuserLoggedIn() {
-		const token = localStorage.getItem("token");
-		if (token && token !== "") {
-			setToken(token);
-		}
 	}
 
 	async function uploadFile() {
@@ -49,18 +46,24 @@ export const Profile = () => {
 			return alert("Please enter a name for this dataset.");
 		if (!version || version === "")
 			return alert("Please enter a version for this dataset.");
-
-		const response = await uploadDataset(file, `${name}:${version}`);
-		console.log(response);
+		setUploadLoading(true);
+		await uploadDataset(file, `${name}:${version}`);
+		toast("Successfully uploaded your dataset", { type: "success" });
+		setMenuIndex(0);
+		setUploadLoading(false);
+		getDatasets(user);
 	}
 
 	function handleTokenDialogClose() {
 		setTokenDialogOpen(false);
 	}
 
+	function handleTagDialogClose() {
+		setTagsDialogOpen(false);
+	}
+
 	useEffect(() => {
 		getDatasets(user);
-		checkIfuserLoggedIn();
 	}, [user]);
 
 	return (
@@ -71,13 +74,22 @@ export const Profile = () => {
 				alignItems: "center",
 			}}
 		>
-			<Navbar />
 			<Box
 				sx={{
 					display: "flex",
 					flexDirection: "column",
 					width: "100%",
-					maxWidth: "1240px",
+					maxWidth: "960px",
+				}}
+			>
+				<Navbar disableSearch={true} />
+			</Box>
+			<Box
+				sx={{
+					display: "flex",
+					flexDirection: "column",
+					width: "100%",
+					maxWidth: "920px",
 				}}
 			>
 				<Box className="profile">
@@ -95,16 +107,7 @@ export const Profile = () => {
 						>
 							<p>Models</p>
 							<TbBoxModel2 />
-						</Box>{" "}
-						{token !== "" && (
-							<Box
-								onClick={() => setMenuIndex(2)}
-								className={`item ${menuIndex === 2 ? "selected" : ""}`}
-							>
-								<p>Settings</p>
-								<IoSettingsOutline />
-							</Box>
-						)}
+						</Box>
 					</Box>
 
 					<CreateAccessTokenDialog
@@ -112,6 +115,12 @@ export const Profile = () => {
 						handleExternalClose={handleTokenDialogClose}
 						datasetId={selectedDatasetid}
 						datasetName={selectedDatasetName}
+					/>
+
+					<TagsDialog
+						name={name}
+						isOpen={tagsDialogOpen}
+						handleExternalClose={handleTagDialogClose}
 					/>
 
 					{menuIndex === 0 && (
@@ -204,12 +213,16 @@ export const Profile = () => {
 											}}
 											onClick={uploadFile}
 										>
-											Upload File
+											{uploadLoading ? (
+												<CircularProgress size={14} sx={{ color: "white" }} />
+											) : (
+												"Upload File"
+											)}
 										</Box>
 									</Box>
 								</Box>
 							) : (
-								<Box px={4}>
+								<Box px={1}>
 									<Box
 										sx={{
 											display: "flex",
@@ -243,51 +256,56 @@ export const Profile = () => {
 													justifyContent={"space-between"}
 												>
 													<Box>
-														<h3>{ds.name.split("/")[1]}</h3>
-														<Box>
-															<Box display={"flex"}>
-																<Box className="tag" sx={{ mr: "4px" }}>
-																	:{ds.version}
-																</Box>
-
-																{ds.private && (
-																	<Box
-																		className="tag"
-																		sx={{
-																			backgroundColor: "#ff1616 !important",
-																		}}
-																	>
-																		Private
-																	</Box>
-																)}
+														<Box sx={{ display: "flex", alignItems: "center" }}>
+															<h3>
+																{getShortAddress(ds.name.split("/")[0])}/
+																{ds.name.split("/")[1]}
+															</h3>
+															<Box className="tag" sx={{ ml: 2 }}>
+																<RxHalf2
+																	style={{
+																		marginRight: "6px",
+																		color: "#256afe",
+																	}}
+																/>
+																{ds.version}
 															</Box>
-															<p
-																style={{
-																	fontWeight: "500",
-																	fontSize: "12px",
-																	marginTop: "4px",
-																	textDecoration: "underline",
-																	color: "white",
-																	cursor: "pointer",
-																}}
-																onClick={() => {
-																	setName(ds.name);
-																}}
-															>
-																view versions
-															</p>
 														</Box>
 													</Box>
-													<Box
-														className="dscard-download"
-														onClick={() => download(ds.file, ds.version)}
+													<h5>
+														Uploaded at {new Date(ds.timestamp).toDateString()}
+													</h5>
+												</Box>
+												<Box>
+													<p
+														style={{
+															fontWeight: "500",
+															fontSize: "12px",
+															marginTop: "4px",
+															textDecoration: "underline",
+															color: "white",
+															cursor: "pointer",
+														}}
+														onClick={() => {
+															setName(ds.name);
+															setTagsDialogOpen(true);
+														}}
 													>
-														<BsDownload color="white" />
-													</Box>
+														view versions
+													</p>
+												</Box>
+												{/* Description */}
+												<Box mt={2} sx={{ color: "grey" }}>
+													<p>
+														Lorem, ipsum dolor sit amet consectetur adipisicing
+														elit. Accusantium optio totam eum, veniam distinctio
+														dolor consequatur cupiditate, perferendis veritatis
+														iusto hic quibusdam alias voluptas ipsam? Veniam
+														deleniti enim magni natus.
+													</p>
 												</Box>
 												<Box
 													display="flex"
-													justifyContent="space-between"
 													alignItems={"center"}
 													sx={{
 														marginTop: "12px",
@@ -295,9 +313,7 @@ export const Profile = () => {
 														fontSize: "12px",
 													}}
 												>
-													<p>
-														Uploaded at {new Date(ds.timestamp).toDateString()}
-													</p>
+													<DownloadButton ds={ds} />
 													{!ds.tokenAccessEnabled && (
 														<Tooltip
 															title="Enable access to users."
@@ -350,21 +366,6 @@ export const Profile = () => {
 									</h3>
 								</Box>
 							)}
-						</Box>
-					)}
-					{menuIndex === 2 && (
-						<Box sx={{ flex: 1 }}>
-							<h2>Settings</h2>
-							<br />
-							<h3>CLI</h3>
-							<p style={{ fontWeight: "500", marginTop: "4px" }}>
-								In order to push images from your computer you need to login to
-								CLI using the token provided below. Enter to below command in
-								powershell or command line.
-							</p>
-
-							<br />
-							<h3>Token</h3>
 						</Box>
 					)}
 					{menuIndex === 3 && (
@@ -454,7 +455,11 @@ export const Profile = () => {
 									}}
 									onClick={uploadFile}
 								>
-									Upload File
+									{uploadLoading ? (
+										<CircularProgress size={14} sx={{ color: "white" }} />
+									) : (
+										"Upload File"
+									)}
 								</Box>
 							</Box>
 						</Box>

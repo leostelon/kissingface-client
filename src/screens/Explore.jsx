@@ -1,27 +1,26 @@
 import "./Explore.css";
 import "../styles/dscard.css";
-import { Box, CircularProgress, Dialog } from "@mui/material";
+import { Box } from "@mui/material";
 import { Navbar } from "../components/Navbar";
 import React, { useEffect, useState } from "react";
 import { getDatasets, searchDatasets } from "../api/dataset";
 import { SearchComponent } from "../components/search/SearchComponent";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Loader } from "../components/Loader";
-import { BsDownload } from "react-icons/bs";
 import { IoMdOpen } from "react-icons/io";
-import { download } from "../utils/download";
 import { getShortAddress } from "../utils/addressShort";
-import { BuyAccessTokenDialog } from "../components/BuyAccessTokenDialog";
+import { RxHalf2 } from "react-icons/rx";
+import { DownloadButton } from "../components/DownloadButton";
+import { TagsDialog } from "../components/TagsDialog";
 
 export const Explore = () => {
+	const navigate = useNavigate();
+	const search = useLocation().search;
+	const [name, setName] = useState("");
 	const [images, setImages] = useState([]);
 	const [loading, setLoading] = useState(true);
-	const search = useLocation().search;
 	const query = new URLSearchParams(search).get("query");
-	const navigate = useNavigate();
-	const [accessDialogOpen, setAccessDialogOpen] = useState(false);
-	const [selectedDataset, setSelectedDataset] = useState();
-	const [downloadLoading, setDownloadLoading] = useState(false);
+	const [tagsDialogOpen, setTagsDialogOpen] = useState(false);
 
 	async function getImages() {
 		setLoading(true);
@@ -37,10 +36,6 @@ export const Explore = () => {
 		setLoading(false);
 	}
 
-	function handleTokenDialogClose() {
-		setAccessDialogOpen(false);
-	}
-
 	useEffect(() => {
 		if (query && query !== "") {
 			searchImages(query);
@@ -48,6 +43,10 @@ export const Explore = () => {
 			getImages();
 		}
 	}, [query]);
+
+	function handleTagDialogClose() {
+		setTagsDialogOpen(false);
+	}
 
 	return (
 		<Box
@@ -57,47 +56,34 @@ export const Explore = () => {
 				alignItems: "center",
 			}}
 		>
-			<Navbar />
 			<Box
 				sx={{
 					display: "flex",
 					flexDirection: "column",
 					width: "100%",
-					maxWidth: "840px",
+					maxWidth: "960px",
+				}}
+			>
+				<Navbar disableSearch={true} />
+			</Box>
+			<Box
+				sx={{
+					display: "flex",
+					flexDirection: "column",
+					width: "100%",
+					maxWidth: "920px",
 				}}
 			>
 				<Box sx={{ display: "flex", justifyContent: "space-between" }}>
 					<h2>Explore</h2>
 					<SearchComponent />
 				</Box>
-
-				<BuyAccessTokenDialog
-					isOpen={accessDialogOpen}
-					handleExternalClose={handleTokenDialogClose}
-					dataset={selectedDataset}
+				<TagsDialog
+					name={name}
+					isOpen={tagsDialogOpen}
+					handleExternalClose={handleTagDialogClose}
 				/>
-				<Dialog
-					fullWidth
-					maxWidth="xs"
-					open={downloadLoading}
-					PaperProps={{
-						style: {
-							backgroundColor: "transparent",
-							boxShadow: "none",
-						},
-					}}
-				>
-					<Box
-						sx={{
-							display: "flex",
-							alignItems: "center",
-							justifyContent: "center",
-							height: "100px",
-						}}
-					>
-						<CircularProgress sx={{ color: "white" }} />
-					</Box>
-				</Dialog>
+
 				<Box mt={2}>
 					{loading ? (
 						<Loader />
@@ -112,77 +98,85 @@ export const Explore = () => {
 										justifyContent={"space-between"}
 									>
 										<Box>
-											<h3>{ds.name.split("/")[1]}</h3>
-											<Box>
-												<Box display={"flex"}>
-													<Box className="tag" sx={{ mr: "4px" }}>
-														:{ds.version}
-													</Box>
-
-													{ds.private && (
-														<Box
-															className="tag"
-															sx={{
-																backgroundColor: "#ff1616 !important",
-															}}
-														>
-															Private
-														</Box>
-													)}
+											<Box sx={{ display: "flex", alignItems: "center" }}>
+												<h3>
+													{getShortAddress(ds.name.split("/")[0])}/
+													{ds.name.split("/")[1]}
+												</h3>
+												<Box className="tag" sx={{ ml: 2 }}>
+													<RxHalf2
+														style={{
+															marginRight: "6px",
+															color: "#256afe",
+														}}
+													/>
+													{ds.version}
 												</Box>
-												<p
-													style={{
-														fontWeight: "500",
-														fontSize: "12px",
-														marginTop: "4px",
-														textDecoration: "underline",
-														color: "white",
-														cursor: "pointer",
-													}}
-													onClick={() => {}}
-												>
-													view versions
-												</p>
-											</Box>
-											<Box className="creator">
-												<p>Maintained by&nbsp;</p>
-												<Box
-													sx={{
-														"&:hover": {
-															textDecoration: "underline",
-														},
-														cursor: "pointer",
-													}}
-													onClick={() => navigate("/profile/" + ds.creator)}
-												>
-													{getShortAddress(ds.creator)}
-												</Box>
-												<IoMdOpen
-													style={{ color: "white" }}
-													className="open-creator-icon"
-												/>
 											</Box>
 										</Box>
-
-										<Box
-											className="dscard-download"
-											onClick={async () => {
-												setDownloadLoading(true);
-												setSelectedDataset(ds);
-												const resolved = await download(ds.id);
-												setDownloadLoading(false);
-
-												if (resolved.data.status === 401) {
-													setAccessDialogOpen(true);
-												}
+										<h5>Uploaded at {new Date(ds.timestamp).toDateString()}</h5>
+									</Box>
+									<Box>
+										<Box display={"flex"}>
+											{ds.private && (
+												<Box
+													className="tag"
+													sx={{
+														backgroundColor: "#ff1616 !important",
+													}}
+												>
+													Private
+												</Box>
+											)}
+										</Box>
+										<p
+											style={{
+												fontWeight: "500",
+												fontSize: "12px",
+												marginTop: "4px",
+												textDecoration: "underline",
+												color: "white",
+												cursor: "pointer",
+											}}
+											onClick={() => {
+												setName(ds.name);
+															setTagsDialogOpen(true);
 											}}
 										>
-											<BsDownload color="white" />
+											view versions
+										</p>
+									</Box>
+									{/* Description */}
+									<Box mt={2} sx={{ color: "grey" }}>
+										<p>
+											Lorem, ipsum dolor sit amet consectetur adipisicing elit.
+											Accusantium optio totam eum, veniam distinctio dolor
+											consequatur cupiditate, perferendis veritatis iusto hic
+											quibusdam alias voluptas ipsam? Veniam deleniti enim magni
+											natus.
+										</p>
+									</Box>
+									{/* Maintained By */}
+									<Box className="creator">
+										<p>Maintained by&nbsp;</p>
+										<Box
+											sx={{
+												"&:hover": {
+													textDecoration: "underline",
+												},
+												cursor: "pointer",
+											}}
+											onClick={() => navigate("/profile/" + ds.creator)}
+										>
+											{getShortAddress(ds.creator)}
 										</Box>
+										<IoMdOpen
+											style={{ color: "white" }}
+											className="open-creator-icon"
+										/>
 									</Box>
 									<Box
 										display="flex"
-										justifyContent="space-between"
 										alignItems={"center"}
 										sx={{
 											marginTop: "12px",
@@ -190,7 +184,7 @@ export const Explore = () => {
 											fontSize: "12px",
 										}}
 									>
-										<p>Uploaded at {new Date(ds.timestamp).toDateString()}</p>
+										<DownloadButton ds={ds} />
 									</Box>
 								</Box>
 							);

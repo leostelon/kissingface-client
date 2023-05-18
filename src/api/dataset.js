@@ -70,7 +70,7 @@ export const getDatasetVersion = async function (name) {
 		let token = localStorage.getItem("token");
 
 		const response = await axios.get(
-			SERVER_URL + "/repository/tags?name=" + name,
+			SERVER_URL + "/datasets/versions?name=" + name,
 			{
 				headers: {
 					"Content-Type": `application/json`,

@@ -7,8 +7,9 @@ import { createUser } from "../api/user";
 import { HiOutlineLogout } from "react-icons/hi";
 import { MdOutlinePersonOutline } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
+import { SearchComponent } from "./search/SearchComponent";
 
-export const Navbar = () => {
+export const Navbar = ({ disableSearch = false }) => {
 	const [anchorEl, setAnchorEl] = useState(null);
 	const open = Boolean(anchorEl);
 	const navigate = useNavigate();
@@ -71,7 +72,7 @@ export const Navbar = () => {
 					}}
 				>
 					<Box className="navlist">
-						<p onClick={() => window.location.replace("/explore")}>Explore</p>
+						<p onClick={() => navigate("/explore")}>Explore</p>
 						<p
 							onClick={() =>
 								window.open("https://github.com/leostelon/dedocker", "_blank")
@@ -80,6 +81,11 @@ export const Navbar = () => {
 							Github
 						</p>
 					</Box>
+					{!disableSearch && (
+						<Box mr={2}>
+							<SearchComponent />
+						</Box>
+					)}
 					{!connectedToSite ? (
 						<Box onClick={connectSite} className="upload-button">
 							Connect Wallet

@@ -13,7 +13,7 @@ export const Home = () => {
 				<Box className="homepage-shadow-overlay"></Box>
 				<Box className="app-body-inner">
 					<Box sx={{ textAlign: "left", flex: 3 }}>
-						<Box sx={{ fontSize: "33px" }}>
+						<Box sx={{ fontSize: "30px" }}>
 							<h1>✨Collaborative DataDAO</h1>
 						</Box>
 						<Box sx={{ fontSize: "30px" }}>

@@ -10,7 +10,7 @@ export async function download(id) {
 				type: "info",
 			});
 		} else if (resolved.statusCode === 404) {
-			toast("Invalid dataset id.", {
+			toast("Creator has not created access for this dataset yet🥺", {
 				type: "info",
 			});
 		} else if (resolved.statusCode === 200) {
