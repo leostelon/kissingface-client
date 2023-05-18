@@ -10,9 +10,15 @@ export async function download(id) {
 				type: "info",
 			});
 		} else if (resolved.statusCode === 404) {
-			toast("Creator has not created access for this dataset yet🥺", {
-				type: "info",
-			});
+			const data = resolved.data;
+			if (data.data.message && data.data.message.includes("authenticate")) {
+				toast("Please connect your wallet!", {
+					type: "info",
+				});
+			} else
+				toast("Creator has not created access for this dataset yet🥺", {
+					type: "info",
+				});
 		} else if (resolved.statusCode === 200) {
 			// Download File
 			downloadURI(resolved.data.data.file, resolved.data.data.name);

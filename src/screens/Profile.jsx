@@ -30,6 +30,7 @@ export const Profile = () => {
 	const [selectedDatasetid, setSelectedDatasetid] = useState();
 	const [selectedDatasetName, setSelectedDatasetName] = useState();
 	const [tagsDialogOpen, setTagsDialogOpen] = useState(false);
+	const [loggedInAddress, setLoggedInAddress] = useState();
 
 	const { user } = useParams();
 
@@ -41,7 +42,14 @@ export const Profile = () => {
 		setLoading(false);
 	}
 
+	function getLoggedAddress() {
+		const address = localStorage.getItem("address");
+		setLoggedInAddress(address);
+	}
+
 	async function uploadFile() {
+		if (!loggedInAddress)
+			return toast("Please connect your wallet.", { type: "info" });
 		if (!file) return alert("Please select a file!");
 		if (!name || name === "")
 			return alert("Please enter a name for this dataset.");
@@ -67,6 +75,7 @@ export const Profile = () => {
 
 	useEffect(() => {
 		getDatasets(user);
+		getLoggedAddress();
 	}, [user]);
 
 	return (
@@ -131,121 +140,125 @@ export const Profile = () => {
 							{loading ? (
 								<Loader />
 							) : datasets.length === 0 ? (
-								<Box
-									sx={{
-										display: "flex",
-										alignItems: "center",
-										justifyContent: "center",
-										padding: 2,
-									}}
-								>
+								loggedInAddress === user ? (
 									<Box
 										sx={{
-											textAlign: "center",
-											border: "2px solid grey",
-											borderStyle: "dotted",
-											p: 4,
-											backgroundColor: "#1b1c1d",
+											display: "flex",
+											alignItems: "center",
+											justifyContent: "center",
+											padding: 2,
 										}}
 									>
-										<h3
-											style={{
-												color: "grey",
-											}}
-										>
-											You have 0 datasets, try uploading one.😃
-										</h3>
-										<AiOutlineCloudUpload size={80} />
 										<Box
-											style={{
-												marginBottom: "16px",
+											sx={{
+												textAlign: "center",
+												border: "2px solid grey",
+												borderStyle: "dotted",
+												p: 4,
+												backgroundColor: "#1b1c1d",
 											}}
 										>
-											<input
-												type="file"
-												name="file"
-												id="file"
-												onChange={(e) => setFile(e.target.files[0])}
-											/>
-										</Box>
-										<Box sx={{ mt: 1 }}>
-											<TextField
-												placeholder="Enter dataset name"
-												size="small"
-												value={name}
-												onChange={(e) => {
-													setName(e.target.value);
+											<h3
+												style={{
+													color: "grey",
 												}}
-												sx={{
-													width: "100%",
+											>
+												You have 0 datasets, try uploading one.😃
+											</h3>
+											<AiOutlineCloudUpload size={80} />
+											<Box
+												style={{
+													marginBottom: "16px",
 												}}
-												InputProps={{
-													style: {
-														color: "white",
-														border: "1px solid white",
-													},
+											>
+												<input
+													type="file"
+													name="file"
+													id="file"
+													onChange={(e) => setFile(e.target.files[0])}
+												/>
+											</Box>
+											<Box sx={{ mt: 1 }}>
+												<TextField
+													placeholder="Enter dataset name"
+													size="small"
+													value={name}
+													onChange={(e) => {
+														setName(e.target.value);
+													}}
+													sx={{
+														width: "100%",
+													}}
+													InputProps={{
+														style: {
+															color: "white",
+															border: "1px solid white",
+														},
+													}}
+												/>
+												<TextField
+													placeholder="Enter version"
+													size="small"
+													value={version}
+													onChange={(e) => {
+														setVersion(e.target.value);
+													}}
+													sx={{
+														width: "100%",
+														mt: 2,
+														mb: 2,
+													}}
+													InputProps={{
+														style: {
+															color: "white",
+															border: "1px solid white",
+														},
+													}}
+												/>
+												<TextField
+													multiline
+													rows={4}
+													maxRows={4}
+													placeholder="Enter description"
+													size="small"
+													value={description}
+													onChange={(e) => {
+														setDescription(e.target.value);
+													}}
+													sx={{
+														width: "100%",
+														mt: 2,
+														mb: 2,
+													}}
+													InputProps={{
+														style: {
+															color: "white",
+															border: "1px solid white",
+														},
+													}}
+												/>
+											</Box>
+											<Box
+												style={{
+													backgroundColor: "#256afe",
+													padding: "6px 16px",
+													fontWeight: 500,
+													borderRadius: "4px",
+													cursor: "pointer",
 												}}
-											/>
-											<TextField
-												placeholder="Enter version"
-												size="small"
-												value={version}
-												onChange={(e) => {
-													setVersion(e.target.value);
-												}}
-												sx={{
-													width: "100%",
-													mt: 2,
-													mb: 2,
-												}}
-												InputProps={{
-													style: {
-														color: "white",
-														border: "1px solid white",
-													},
-												}}
-											/>
-											<TextField
-												multiline
-												rows={4}
-												maxRows={4}
-												placeholder="Enter description"
-												size="small"
-												value={description}
-												onChange={(e) => {
-													setDescription(e.target.value);
-												}}
-												sx={{
-													width: "100%",
-													mt: 2,
-													mb: 2,
-												}}
-												InputProps={{
-													style: {
-														color: "white",
-														border: "1px solid white",
-													},
-												}}
-											/>
-										</Box>
-										<Box
-											style={{
-												backgroundColor: "#256afe",
-												padding: "6px 16px",
-												fontWeight: 500,
-												borderRadius: "4px",
-												cursor: "pointer",
-											}}
-											onClick={uploadFile}
-										>
-											{uploadLoading ? (
-												<CircularProgress size={14} sx={{ color: "white" }} />
-											) : (
-												"Upload File"
-											)}
+												onClick={uploadFile}
+											>
+												{uploadLoading ? (
+													<CircularProgress size={14} sx={{ color: "white" }} />
+												) : (
+													"Upload File"
+												)}
+											</Box>
 										</Box>
 									</Box>
-								</Box>
+								) : (
+									<Box>User has 0 datasets</Box>
+								)
 							) : (
 								<Box px={1}>
 									<Box
@@ -257,18 +270,20 @@ export const Profile = () => {
 										}}
 									>
 										<h1>Datasets</h1>
-										<Box
-											style={{
-												backgroundColor: "#256afe",
-												padding: "6px 16px",
-												fontWeight: 500,
-												borderRadius: "4px",
-												cursor: "pointer",
-											}}
-											onClick={() => setMenuIndex(3)}
-										>
-											Upload File
-										</Box>
+										{loggedInAddress && (
+											<Box
+												style={{
+													backgroundColor: "#256afe",
+													padding: "6px 16px",
+													fontWeight: 500,
+													borderRadius: "4px",
+													cursor: "pointer",
+												}}
+												onClick={() => setMenuIndex(3)}
+											>
+												Upload File
+											</Box>
+										)}
 									</Box>
 
 									{datasets.map((d, i) => {
@@ -337,23 +352,24 @@ export const Profile = () => {
 													}}
 												>
 													<DownloadButton ds={ds} />
-													{!ds.tokenAccessEnabled && (
-														<Tooltip
-															title="Enable access to users."
-															placement="top"
-														>
-															<p
-																className="access-enabled"
-																onClick={() => {
-																	setSelectedDatasetid(ds.id);
-																	setSelectedDatasetName(ds.name);
-																	setTokenDialogOpen(true);
-																}}
+													{loggedInAddress === ds.creator &&
+														!ds.tokenAccessEnabled && (
+															<Tooltip
+																title="Enable access to users."
+																placement="top"
 															>
-																Create access token⚠️
-															</p>
-														</Tooltip>
-													)}
+																<p
+																	className="access-enabled"
+																	onClick={() => {
+																		setSelectedDatasetid(ds.id);
+																		setSelectedDatasetName(ds.name);
+																		setTokenDialogOpen(true);
+																	}}
+																>
+																	Create access token⚠️
+																</p>
+															</Tooltip>
+														)}
 												</Box>
 											</Box>
 										);
