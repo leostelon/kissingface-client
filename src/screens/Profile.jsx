@@ -1,31 +1,29 @@
 import "./Profile.css";
 import "../styles/dscard.css";
 import React, { useEffect, useState } from "react";
-import { Box, CircularProgress, TextField, Tooltip } from "@mui/material";
+import {
+	Box,
+	Tooltip,
+} from "@mui/material";
 import { Navbar } from "../components/Navbar";
 import { useParams } from "react-router-dom";
-import { uploadDataset, userDatasets } from "../api/dataset";
+import {  userDatasets } from "../api/dataset";
 import { BsDatabase } from "react-icons/bs";
-import { AiOutlineCloudUpload } from "react-icons/ai";
 import { TbBoxModel2 } from "react-icons/tb";
 import { Loader } from "../components/Loader";
 import EmptyBox from "../assets/629-empty-box.gif";
 import { CreateAccessTokenDialog } from "../components/CreateAccessTokenDialog";
-import { toast } from "react-toastify";
 import { getShortAddress } from "../utils/addressShort";
 import { RxHalf2 } from "react-icons/rx";
 import { TagsDialog } from "../components/TagsDialog";
 import { DownloadButton } from "../components/DownloadButton";
+import { Upload } from "../components/Upload";
 
 export const Profile = () => {
 	const [loading, setLoading] = useState(true);
-	const [uploadLoading, setUploadLoading] = useState(false);
 	const [menuIndex, setMenuIndex] = useState(0);
 	const [datasets, setDatasets] = useState([]);
-	const [file, setFile] = useState();
 	const [name, setName] = useState("");
-	const [version, setVersion] = useState("");
-	const [description, setDescription] = useState("");
 	const [tokenDialogOpen, setTokenDialogOpen] = useState(false);
 	const [selectedDatasetid, setSelectedDatasetid] = useState();
 	const [selectedDatasetName, setSelectedDatasetName] = useState();
@@ -45,24 +43,6 @@ export const Profile = () => {
 	function getLoggedAddress() {
 		const address = localStorage.getItem("address");
 		setLoggedInAddress(address);
-	}
-
-	async function uploadFile() {
-		if (!loggedInAddress)
-			return toast("Please connect your wallet.", { type: "info" });
-		if (!file) return alert("Please select a file!");
-		if (!name || name === "")
-			return alert("Please enter a name for this dataset.");
-		if (!version || version === "")
-			return alert("Please enter a version for this dataset.");
-		if (!description || description === "")
-			return alert("Please enter a description for this dataset.");
-		setUploadLoading(true);
-		await uploadDataset(file, `${name}:${version}`, description);
-		toast("Successfully uploaded your dataset", { type: "success" });
-		setMenuIndex(0);
-		setUploadLoading(false);
-		getDatasets(user);
 	}
 
 	function handleTokenDialogClose() {
@@ -139,123 +119,12 @@ export const Profile = () => {
 						<Box sx={{ flex: 1, width: "100%" }}>
 							{loading ? (
 								<Loader />
-							) : datasets.length === 0 ? (
+							) : datasets.length !== 0 ? (
 								loggedInAddress === user ? (
-									<Box
-										sx={{
-											display: "flex",
-											alignItems: "center",
-											justifyContent: "center",
-											padding: 2,
-										}}
-									>
-										<Box
-											sx={{
-												textAlign: "center",
-												border: "2px solid grey",
-												borderStyle: "dotted",
-												p: 4,
-												backgroundColor: "#1b1c1d",
-											}}
-										>
-											<h3
-												style={{
-													color: "grey",
-												}}
-											>
-												You have 0 datasets, try uploading one.😃
-											</h3>
-											<AiOutlineCloudUpload size={80} />
-											<Box
-												style={{
-													marginBottom: "16px",
-												}}
-											>
-												<input
-													type="file"
-													name="file"
-													id="file"
-													onChange={(e) => setFile(e.target.files[0])}
-												/>
-											</Box>
-											<Box sx={{ mt: 1 }}>
-												<TextField
-													placeholder="Enter dataset name"
-													size="small"
-													value={name}
-													onChange={(e) => {
-														setName(e.target.value);
-													}}
-													sx={{
-														width: "100%",
-													}}
-													InputProps={{
-														style: {
-															color: "white",
-															border: "1px solid white",
-														},
-													}}
-												/>
-												<TextField
-													placeholder="Enter version"
-													size="small"
-													value={version}
-													onChange={(e) => {
-														setVersion(e.target.value);
-													}}
-													sx={{
-														width: "100%",
-														mt: 2,
-														mb: 2,
-													}}
-													InputProps={{
-														style: {
-															color: "white",
-															border: "1px solid white",
-														},
-													}}
-												/>
-												<TextField
-													multiline
-													rows={4}
-													maxRows={4}
-													placeholder="Enter description"
-													size="small"
-													value={description}
-													onChange={(e) => {
-														setDescription(e.target.value);
-													}}
-													sx={{
-														width: "100%",
-														mt: 2,
-														mb: 2,
-													}}
-													InputProps={{
-														style: {
-															color: "white",
-															border: "1px solid white",
-														},
-													}}
-												/>
-											</Box>
-											<Box
-												style={{
-													backgroundColor: "#256afe",
-													padding: "6px 16px",
-													fontWeight: 500,
-													borderRadius: "4px",
-													cursor: "pointer",
-												}}
-												onClick={uploadFile}
-											>
-												{uploadLoading ? (
-													<CircularProgress size={14} sx={{ color: "white" }} />
-												) : (
-													"Upload File"
-												)}
-											</Box>
-										</Box>
-									</Box>
+									<Upload
+										title={"You have 0 datasets, try uploading one.😃"}
+										loggedInAddress={loggedInAddress}
+									/>
 								) : (
 									<Box>User has 0 datasets</Box>
 								)
@@ -408,121 +277,10 @@ export const Profile = () => {
 						</Box>
 					)}
 					{menuIndex === 3 && (
-						<Box
-							sx={{
-								display: "flex",
-								alignItems: "center",
-								justifyContent: "center",
-								padding: 2,
-								width: "100%",
-							}}
-						>
-							<Box
-								sx={{
-									textAlign: "center",
-									border: "2px solid grey",
-									borderStyle: "dotted",
-									p: 4,
-									backgroundColor: "#1b1c1d",
-								}}
-							>
-								<h3
-									style={{
-										color: "grey",
-									}}
-								>
-									Upload your dataset.😃
-								</h3>
-								<AiOutlineCloudUpload size={80} />
-								<Box
-									style={{
-										marginBottom: "16px",
-									}}
-								>
-									<input
-										type="file"
-										name="file"
-										id="file"
-										onChange={(e) => setFile(e.target.files[0])}
-									/>
-								</Box>
-								<Box sx={{ mt: 1 }}>
-									<TextField
-										placeholder="Enter dataset name"
-										size="small"
-										value={name}
-										onChange={(e) => {
-											setName(e.target.value);
-										}}
-										sx={{
-											width: "100%",
-										}}
-										InputProps={{
-											style: {
-												color: "white",
-												border: "1px solid white",
-											},
-										}}
-									/>
-									<TextField
-										placeholder="Enter version"
-										size="small"
-										value={version}
-										onChange={(e) => {
-											setVersion(e.target.value);
-										}}
-										sx={{
-											width: "100%",
-											mt: 2,
-										}}
-										InputProps={{
-											style: {
-												color: "white",
-												border: "1px solid white",
-											},
-										}}
-									/>
-									<TextField
-										multiline
-										rows={4}
-										maxRows={4}
-										placeholder="Enter description"
-										size="small"
-										value={description}
-										onChange={(e) => {
-											setDescription(e.target.value);
-										}}
-										sx={{
-											width: "100%",
-											mt: 2,
-											mb: 2,
-										}}
-										InputProps={{
-											style: {
-												color: "white",
-												border: "1px solid white",
-											},
-										}}
-									/>
-								</Box>
-								<Box
-									style={{
-										backgroundColor: "#256afe",
-										padding: "6px 16px",
-										fontWeight: 500,
-										borderRadius: "4px",
-										cursor: "pointer",
-									}}
-									onClick={uploadFile}
-								>
-									{uploadLoading ? (
-										<CircularProgress size={14} sx={{ color: "white" }} />
-									) : (
-										"Upload File"
-									)}
-								</Box>
-							</Box>
-						</Box>
+						<Upload
+							title={"Upload your dataset.😃"}
+							loggedInAddress={loggedInAddress}
+						/>
 					)}
 				</Box>
 			</Box>

@@ -2,13 +2,21 @@ import { default as axios } from "axios";
 import { SERVER_URL } from "../constants";
 import { resolve } from "../utils/resolver";
 
-export const uploadDataset = async function (file, dataset, description) {
+export const uploadDataset = async function (
+	files,
+	dataset,
+	description,
+	stableDiffusionEnabled
+) {
 	try {
 		let token = localStorage.getItem("token");
 		const form = new FormData();
-		form.append("file", file, file.name);
+		for (let i = 0; i < files.length; i++) {
+			form.append("file", files[i], files[i].name);
+		}
 		form.append("dataset", dataset);
 		form.append("description", description);
+		form.append("stableDiffusionEnabled", stableDiffusionEnabled);
 
 		const response = await axios.post(SERVER_URL + "/upload/dataset", form, {
 			headers: {
