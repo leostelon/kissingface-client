@@ -12,6 +12,7 @@ import { getShortAddress } from "../utils/addressShort";
 import { RxHalf2 } from "react-icons/rx";
 import { DownloadButton } from "../components/DownloadButton";
 import { TagsDialog } from "../components/TagsDialog";
+import { StableDiffusion } from "../components/StableDiffusion";
 
 export const Explore = () => {
 	const navigate = useNavigate();
@@ -184,6 +185,9 @@ export const Explore = () => {
 									>
 										<DownloadButton ds={ds} />
 									</Box>
+									{ds.stableDiffusionEnabled && (
+										<StableDiffusion dataset={ds} />
+									)}
 								</Box>
 							);
 						})

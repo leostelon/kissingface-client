@@ -119,7 +119,7 @@ export const Profile = () => {
 						<Box sx={{ flex: 1, width: "100%" }}>
 							{loading ? (
 								<Loader />
-							) : datasets.length !== 0 ? (
+							) : datasets.length === 0 ? (
 								loggedInAddress === user ? (
 									<Upload
 										title={"You have 0 datasets, try uploading one.😃"}
