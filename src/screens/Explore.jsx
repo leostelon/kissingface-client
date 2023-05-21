@@ -62,7 +62,6 @@ export const Explore = () => {
 					display: "flex",
 					flexDirection: "column",
 					width: "100%",
-					maxWidth: "960px",
 				}}
 			>
 				<Navbar disableSearch={true} />
@@ -156,34 +155,38 @@ export const Explore = () => {
 										</p>
 									</Box>
 									{/* Maintained By */}
-									<Box className="creator">
-										<p>Maintained by&nbsp;</p>
-										<Box
-											sx={{
-												"&:hover": {
-													textDecoration: "underline",
-												},
-												cursor: "pointer",
-											}}
-											onClick={() => navigate("/profile/" + ds.creator)}
-										>
-											{getShortAddress(ds.creator)}
-										</Box>
-										<IoMdOpen
-											style={{ color: "white" }}
-											className="open-creator-icon"
-										/>
-									</Box>
 									<Box
-										display="flex"
-										alignItems={"center"}
-										sx={{
-											marginTop: "12px",
-											fontWeight: "600",
-											fontSize: "12px",
-										}}
+										sx={{ display: "flex", justifyContent: "space-between" }}
 									>
-										<DownloadButton ds={ds} />
+										<Box className="creator">
+											<p>Maintained by&nbsp;</p>
+											<Box
+												sx={{
+													"&:hover": {
+														textDecoration: "underline",
+													},
+													cursor: "pointer",
+												}}
+												onClick={() => navigate("/profile/" + ds.creator)}
+											>
+												{getShortAddress(ds.creator)}
+											</Box>
+											<IoMdOpen
+												style={{ color: "white" }}
+												className="open-creator-icon"
+											/>
+										</Box>
+										<Box
+											display="flex"
+											alignItems={"center"}
+											sx={{
+												marginTop: "12px",
+												fontWeight: "600",
+												fontSize: "12px",
+											}}
+										>
+											<DownloadButton ds={ds} />
+										</Box>
 									</Box>
 									{ds.stableDiffusionEnabled && (
 										<StableDiffusion dataset={ds} />

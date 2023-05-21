@@ -8,6 +8,7 @@ import { HiOutlineLogout } from "react-icons/hi";
 import { MdOutlinePersonOutline } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { SearchComponent } from "./search/SearchComponent";
+import Logo from "../assets/logo.png";
 
 export const Navbar = ({ disableSearch = false }) => {
 	const [anchorEl, setAnchorEl] = useState(null);
@@ -53,15 +54,35 @@ export const Navbar = ({ disableSearch = false }) => {
 				flexDirection: "column",
 			}}
 		>
+			<Box
+				sx={{
+					p: 1,
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "center",
+					backgroundColor: "#256afe",
+					color: "white",
+					width: "100%",
+					fontWeight: "700",
+					cursor: "pointer",
+				}}
+				onClick={() =>
+					window.open("https://github.com/leostelon/dedocker", "_blank")
+				}
+			>
+				✨ Onsite compute for stable diffusion has been enabled ✨
+			</Box>
 			<div className="navbar">
 				<div
 					onClick={() => {
 						navigate("/");
 					}}
-					style={{ cursor: "pointer" }}
+					style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
 				>
+					<img height={"45px"} src={Logo} alt="logo" />
+
 					<h1 style={{ alignItems: "flex-start", display: "flex" }}>
-						🔵Daggle{" "}
+						&nbsp;Daggle
 					</h1>
 				</div>
 				<div

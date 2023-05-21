@@ -19,11 +19,31 @@ export const Home = () => {
 						<Box sx={{ fontSize: "30px" }}>
 							<h2>for the data science community!</h2>
 						</Box>
-						<Box sx={{ fontSize: "18px", color: "#9FA1A4", mt: 1.5 }}>
+						<Box
+							sx={{
+								fontSize: "18px",
+								color: "#9FA1A4",
+								mt: 1.5,
+								fontWeight: "500",
+							}}
+						>
 							<p>
-								Daggle is a decentralized version of Kaggle enabling you to
-								access
-								<br /> wider range of datasets and models via{" "}
+								Daggle is a decentralized version of Kaggle/Huggingface,
+								enabling you to train models onsite
+								<br /> using&nbsp;
+								<span
+									style={{
+										fontWeight: "bold",
+										textDecoration: "underline",
+										cursor: "pointer",
+									}}
+									onClick={() => {
+										window.open("https://docs.bacalhau.org/", "_blank");
+									}}
+								>
+									bacalhau
+								</span>{" "}
+								or access wider range of datasets and models via{" "}
 								<span style={{ fontWeight: "bold" }}>DAO</span>.
 							</p>
 						</Box>

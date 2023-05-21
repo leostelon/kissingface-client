@@ -18,6 +18,7 @@ import { RxHalf2 } from "react-icons/rx";
 import { TagsDialog } from "../components/TagsDialog";
 import { DownloadButton } from "../components/DownloadButton";
 import { Upload } from "../components/Upload";
+import { StableDiffusion } from "../components/StableDiffusion";
 
 export const Profile = () => {
 	const [loading, setLoading] = useState(true);
@@ -240,6 +241,9 @@ export const Profile = () => {
 															</Tooltip>
 														)}
 												</Box>
+												{ds.stableDiffusionEnabled && (
+													<StableDiffusion dataset={ds} />
+												)}
 											</Box>
 										);
 									})}
