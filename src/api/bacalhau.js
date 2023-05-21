@@ -46,3 +46,39 @@ export const createJob = async function (datasetId, prompt) {
 		console.log(error.message);
 	}
 };
+
+export const getJobs = async function () {
+	try {
+		let token = localStorage.getItem("token");
+
+		const resolved = await resolve(
+			axios.get(SERVER_URL + "/bacalhau", {
+				headers: {
+					"Content-Type": `application/json`,
+					Authorization: `Bearer ${token}`,
+				},
+			})
+		);
+		return resolved;
+	} catch (error) {
+		console.log(error.message);
+	}
+};
+
+export const getJob = async function (id) {
+	try {
+		let token = localStorage.getItem("token");
+
+		const resolved = await resolve(
+			axios.get(SERVER_URL + "/bacalhau/job?id=" + id, {
+				headers: {
+					"Content-Type": `application/json`,
+					Authorization: `Bearer ${token}`,
+				},
+			})
+		);
+		return resolved;
+	} catch (error) {
+		console.log(error.message);
+	}
+};

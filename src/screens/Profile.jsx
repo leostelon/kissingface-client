@@ -1,14 +1,12 @@
 import "./Profile.css";
 import "../styles/dscard.css";
 import React, { useEffect, useState } from "react";
-import {
-	Box,
-	Tooltip,
-} from "@mui/material";
+import { Box, CircularProgress, Dialog, Tooltip } from "@mui/material";
 import { Navbar } from "../components/Navbar";
 import { useParams } from "react-router-dom";
-import {  userDatasets } from "../api/dataset";
+import { userDatasets } from "../api/dataset";
 import { BsDatabase } from "react-icons/bs";
+import { IoFishOutline } from "react-icons/io5";
 import { TbBoxModel2 } from "react-icons/tb";
 import { Loader } from "../components/Loader";
 import EmptyBox from "../assets/629-empty-box.gif";
@@ -19,11 +17,16 @@ import { TagsDialog } from "../components/TagsDialog";
 import { DownloadButton } from "../components/DownloadButton";
 import { Upload } from "../components/Upload";
 import { StableDiffusion } from "../components/StableDiffusion";
+import { getJob, getJobs } from "../api/bacalhau";
+import { toast } from "react-toastify";
 
 export const Profile = () => {
 	const [loading, setLoading] = useState(true);
+	const [bacJobLoading, setBacJobLoading] = useState(true);
+	const [bacJobStatusLoading, setBacJobStatusLoading] = useState(false);
 	const [menuIndex, setMenuIndex] = useState(0);
 	const [datasets, setDatasets] = useState([]);
+	const [jobs, setJobs] = useState([]);
 	const [name, setName] = useState("");
 	const [tokenDialogOpen, setTokenDialogOpen] = useState(false);
 	const [selectedDatasetid, setSelectedDatasetid] = useState();
@@ -41,9 +44,45 @@ export const Profile = () => {
 		setLoading(false);
 	}
 
+	async function getAllJobs() {
+		setBacJobLoading(true);
+		setJobs([]);
+		const resolved = await getJobs();
+		setJobs(resolved.data);
+		setBacJobLoading(false);
+	}
+
+	async function getJobStatus(id) {
+		setBacJobStatusLoading(true);
+		const resolved = await getJob(id);
+		if (resolved.data.state === "Completed") {
+			toast("job completed🥳", { type: "success" });
+			window.open("https://ipfs.io/ipfs/" + resolved.data.cid, "__blank");
+		} else if (resolved.data.state === "BidRejected") {
+			toast("Your job is rejected by Bacalhau.", { type: "error" });
+		} else {
+			toast("Job in progress, check back later. " + resolved.data.state, {
+				type: "info",
+			});
+		}
+		setBacJobStatusLoading(false);
+	}
+
+	function getColor(status) {
+		switch (status) {
+			case "Completed":
+				return "#4cd964";
+			case "BidRejected":
+				return "#f44336";
+			default:
+				return "#ffe000";
+		}
+	}
+
 	function getLoggedAddress() {
 		const address = localStorage.getItem("address");
 		setLoggedInAddress(address);
+		if (address || address !== "") getAllJobs();
 	}
 
 	function handleTokenDialogClose() {
@@ -57,6 +96,7 @@ export const Profile = () => {
 	useEffect(() => {
 		getDatasets(user);
 		getLoggedAddress();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [user]);
 
 	return (
@@ -67,6 +107,29 @@ export const Profile = () => {
 				alignItems: "center",
 			}}
 		>
+			{/* Full Screen Loader */}
+			<Dialog
+				fullWidth
+				maxWidth="xs"
+				open={bacJobStatusLoading}
+				PaperProps={{
+					style: {
+						backgroundColor: "transparent",
+						boxShadow: "none",
+					},
+				}}
+			>
+				<Box
+					sx={{
+						display: "flex",
+						alignItems: "center",
+						justifyContent: "center",
+						height: "100px",
+					}}
+				>
+					<CircularProgress sx={{ color: "white" }} />
+				</Box>
+			</Dialog>
 			<Box
 				sx={{
 					display: "flex",
@@ -97,6 +160,13 @@ export const Profile = () => {
 						<Box
 							onClick={() => setMenuIndex(1)}
 							className={`item ${menuIndex === 1 ? "selected" : ""}`}
+						>
+							<p>Bacalhau Jobs</p>
+							<IoFishOutline />
+						</Box>
+						<Box
+							onClick={() => setMenuIndex(1)}
+							className={`item ${menuIndex === 2 ? "selected" : ""}`}
 						>
 							<p>Models</p>
 							<TbBoxModel2 />
@@ -252,6 +322,100 @@ export const Profile = () => {
 						</Box>
 					)}
 					{menuIndex === 1 && (
+						<Box sx={{ flex: 1, width: "100%" }}>
+							{bacJobLoading ? (
+								<Loader />
+							) : jobs.length === 0 ? (
+								loggedInAddress === user ? (
+									<Upload
+										title={"You have 0 datasets, try uploading one.😃"}
+										loggedInAddress={loggedInAddress}
+									/>
+								) : (
+									<Box>You have 0 bacalhau jobs created.</Box>
+								)
+							) : (
+								<Box px={1}>
+									<Box
+										sx={{
+											display: "flex",
+											alignItems: "center",
+											justifyContent: "space-between",
+											mb: 2,
+										}}
+									>
+										<h1>Jobs</h1>
+									</Box>
+
+									{jobs.map((d, i) => {
+										const job = d.data;
+										return (
+											<Box key={i} className="dscard">
+												<Box
+													display="flex"
+													alignItems={"center"}
+													justifyContent={"space-between"}
+												>
+													<Box>
+														<Box sx={{ display: "flex", alignItems: "center" }}>
+															<h3>
+																{getShortAddress(job.id.replace("\n", ""))}
+															</h3>
+														</Box>
+													</Box>
+													<h5 style={{ color: "grey" }}>
+														Created at {new Date(job.timestamp).toDateString()}
+													</h5>
+												</Box>
+												{/* Tag */}
+												<Box
+													className="tag"
+													sx={{
+														border: `1px solid ${getColor(
+															job.status
+														)}!important`,
+														backgroundColor: `${getColor(
+															job.status
+														)}3a!important`,
+														marginTop: "6px!important",
+													}}
+												>
+													<RxHalf2
+														style={{
+															marginRight: "6px",
+															color: getColor(job.status),
+														}}
+													/>
+													{job.status}
+												</Box>
+												<Box
+													sx={{
+														fontWeight: "400",
+														mt: 1.5,
+														px: 1,
+														py: 0.5,
+														borderRadius: "4px",
+														color: "white",
+														cursor: "pointer",
+														backgroundColor: "#256afe",
+														width: "fit-content",
+													}}
+													onClick={() => getJobStatus(job.id)}
+												>
+													<p>
+														{job.status === "Completed"
+															? "See result"
+															: "Check status"}
+													</p>
+												</Box>
+											</Box>
+										);
+									})}
+								</Box>
+							)}
+						</Box>
+					)}
+					{menuIndex === 2 && (
 						<Box sx={{ flex: 1 }}>
 							{loading ? (
 								<Loader />
