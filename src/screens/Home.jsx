@@ -28,7 +28,7 @@ export const Home = () => {
 							}}
 						>
 							<p>
-								Daggle is a decentralized version of Kaggle/Huggingface,
+								Kissing Face is a decentralized version of Kaggle/Huggingface,
 								enabling you to train models onsite
 								<br /> using&nbsp;
 								<span

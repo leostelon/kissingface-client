@@ -66,9 +66,6 @@ export const Navbar = ({ disableSearch = false }) => {
 					fontWeight: "700",
 					cursor: "pointer",
 				}}
-				onClick={() =>
-					window.open("https://github.com/leostelon/dedocker", "_blank")
-				}
 			>
 				✨ Onsite compute for stable diffusion has been enabled ✨
 			</Box>
@@ -81,8 +78,14 @@ export const Navbar = ({ disableSearch = false }) => {
 				>
 					<img height={"45px"} src={Logo} alt="logo" />
 
-					<h1 style={{ alignItems: "flex-start", display: "flex" }}>
-						&nbsp;Daggle
+					<h1
+						style={{
+							alignItems: "flex-start",
+							display: "flex",
+							fontFamily: "'Pacifico', cursive",
+						}}
+					>
+						&nbsp;Kissing Face
 					</h1>
 				</div>
 				<div
@@ -96,7 +99,10 @@ export const Navbar = ({ disableSearch = false }) => {
 						<p onClick={() => navigate("/explore")}>Explore</p>
 						<p
 							onClick={() =>
-								window.open("https://github.com/leostelon/dedocker", "_blank")
+								window.open(
+									"https://github.com/leostelon/kissingface",
+									"_blank"
+								)
 							}
 						>
 							Github
