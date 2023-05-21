@@ -329,14 +329,7 @@ export const Profile = () => {
 							{bacJobLoading ? (
 								<Loader />
 							) : jobs.length === 0 ? (
-								loggedInAddress === user ? (
-									<Upload
-										title={"You have 0 datasets, try uploading one.😃"}
-										loggedInAddress={loggedInAddress}
-									/>
-								) : (
-									<Box>You have 0 bacalhau jobs created.</Box>
-								)
+								<Box>You have 0 bacalhau jobs created.</Box>
 							) : (
 								<Box px={1}>
 									<Box

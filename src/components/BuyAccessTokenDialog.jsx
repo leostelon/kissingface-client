@@ -97,7 +97,7 @@ export const BuyAccessTokenDialog = ({
 		if (isOpen) {
 			setOpen(isOpen);
 		}
-		if (dataset) {
+		if (dataset && isOpen) {
 			getAccToken(dataset);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
