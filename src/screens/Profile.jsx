@@ -45,6 +45,7 @@ export const Profile = () => {
 	}
 
 	async function getAllJobs() {
+		if (!loggedInAddress) return;
 		setBacJobLoading(true);
 		setJobs([]);
 		const resolved = await getJobs();
@@ -97,7 +98,7 @@ export const Profile = () => {
 		getDatasets(user);
 		getLoggedAddress();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [user]);
+	}, [user, loggedInAddress]);
 
 	return (
 		<Box
@@ -157,15 +158,17 @@ export const Profile = () => {
 							<p>Datasets</p>
 							<BsDatabase />
 						</Box>
+						{loggedInAddress === user && (
+							<Box
+								onClick={() => setMenuIndex(1)}
+								className={`item ${menuIndex === 1 ? "selected" : ""}`}
+							>
+								<p>Bacalhau Jobs</p>
+								<IoFishOutline />
+							</Box>
+						)}
 						<Box
-							onClick={() => setMenuIndex(1)}
-							className={`item ${menuIndex === 1 ? "selected" : ""}`}
-						>
-							<p>Bacalhau Jobs</p>
-							<IoFishOutline />
-						</Box>
-						<Box
-							onClick={() => setMenuIndex(1)}
+							onClick={() => setMenuIndex(2)}
 							className={`item ${menuIndex === 2 ? "selected" : ""}`}
 						>
 							<p>Models</p>
@@ -321,7 +324,7 @@ export const Profile = () => {
 							)}
 						</Box>
 					)}
-					{menuIndex === 1 && (
+					{menuIndex === 1 && loggedInAddress === user && (
 						<Box sx={{ flex: 1, width: "100%" }}>
 							{bacJobLoading ? (
 								<Loader />
@@ -362,6 +365,15 @@ export const Profile = () => {
 																{getShortAddress(job.id.replace("\n", ""))}
 															</h3>
 														</Box>
+														<p
+															style={{
+																color: "grey",
+																margin: "4px 0px",
+																fontSize: "14px",
+															}}
+														>
+															{job.prompt}
+														</p>
 													</Box>
 													<h5 style={{ color: "grey" }}>
 														Created at {new Date(job.timestamp).toDateString()}
