@@ -19,6 +19,7 @@ import { Upload } from "../components/Upload";
 import { StableDiffusion } from "../components/StableDiffusion";
 import { getJob, getJobs } from "../api/bacalhau";
 import { toast } from "react-toastify";
+import { MdContentCopy } from "react-icons/md";
 
 export const Profile = () => {
 	const [loading, setLoading] = useState(true);
@@ -357,6 +358,7 @@ export const Profile = () => {
 															<h3>
 																{getShortAddress(job.id.replace("\n", ""))}
 															</h3>
+															<CopyVideoId videoId={job.id} />
 														</Box>
 														<p
 															style={{
@@ -458,5 +460,32 @@ export const Profile = () => {
 				</Box>
 			</Box>
 		</Box>
+	);
+};
+
+export const CopyVideoId = ({ videoId }) => {
+	const [open, setOpen] = useState(false);
+
+	return (
+		<Tooltip
+			title="Copied!"
+			placement="top"
+			open={open}
+			onClose={() => setOpen(false)}
+		>
+			<Box
+				onClick={() => {
+					navigator.clipboard.writeText(videoId);
+					setOpen(true);
+				}}
+			>
+				<MdContentCopy
+					style={{
+						marginLeft: "12px",
+					}}
+					size={20}
+				/>
+			</Box>
+		</Tooltip>
 	);
 };

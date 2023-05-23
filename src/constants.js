@@ -28,4 +28,4 @@ export const ChainsConfig = {
 	},
 };
 
-export const CONTRACT_ADDRESS = "0xb1Cf086A2A4061e5f448Ce84d726b68A391dB17a";
+export const CONTRACT_ADDRESS = "0xfC941b05Eee7a647683232665b0F9107A9F2E48d";
